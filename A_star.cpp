@@ -3,23 +3,48 @@
 #include <cmath>
 #include <stdlib.h>
 #include <time.h>
+#include <unistd.h> 
 
 using namespace std;
 
 typedef pair<int, int> Pair;
 
-class Node
+
+struct Node
 {
-
-public:
-
 	int h;
 	int g;
 	int f;
 
-	Pair   parent;
 	Pair position;
+
+	Node *parent;
 };
+
+
+// class Node
+// {
+
+// public:
+
+// 	int h;
+// 	int g;
+// 	int f;
+
+// 	Pair position;
+
+// 	Node *parent;
+
+// 	bool operator== (const Node &node);
+// };
+
+
+// bool Node::operator== (const Node &node)
+// {
+//     return (node.position.first  == this->position.first \
+//     	&& 	node.position.second == this->position.second);
+// }
+
 
 
 class AStar
@@ -39,26 +64,37 @@ private:
 	int y_f;	 //final 	position column
 
 	char **grid;
+										//  DIR		   COST
 
+	int move[8][2] = {	{1 ,	0}, 	//  north 		10
+						{-1,	0}, 	//  south 		10
+						{0,		1}, 	//  east 		10
+						{0,		-1}, 	//  west 		10
+						{1, 	1}, 	//  north_east 	14
+						{-1,	1}, 	//  south_east 	14
+						{1,		-1},	//  north_west 	14
+						{-1, 	-1} 	//  south_west 	14
+					};
 public:
 
 
 	AStar(int x_0, int y_0, int x_f, int y_f, int density, int x, int y);
 	~AStar();
 
-	void printGrid();
-	void aStarSearch();
-	//implement returnPath function
+	void 	printGrid();
+	void 	BeginPathSearch();
+	void 	tracePath(Node * node);
 
-	int 	distance( int x, int y);
+	bool 	isNotMovable(Pair pos);
+	bool 	isOnList(Node node, vector<Node> list);
 
-	bool 	positionIsValid(Pair position);
-	bool 	isNotBlocked(int x, int y);
-	bool 	visitedChild(Node children, vector<Node> list, bool flag);
+	int 	costH(Pair pos);
+	int 	costG(Node node, Pair pos);
+	void 	costF(Node new_node, Node curr_node);
 };
 
 
-AStar::AStar(int x_0, int y_0, int x_f, int y_f, int density = 2, int x = 20, int y = 20)
+AStar::AStar(int x_0, int y_0, int x_f, int y_f, int density = 2, int x = 10, int y = 10)
 	{
 		int i;
 		int j;
@@ -83,20 +119,15 @@ AStar::AStar(int x_0, int y_0, int x_f, int y_f, int density = 2, int x = 20, in
 			for (j 	= 0; j < x; j++)
 			{
 				if (int (rand() % y) < density)
-				{
 					grid[i][j] =  'o';
-				}
 				else
-				{
 					grid[i][j] =  '.';
-				}
 			}
 		}
-
 		grid[x_0][y_0]  = '*'; //start
 		grid[x_f][y_f] 	= 'x'; //finish
-
 	}
+
 
 AStar::~AStar()
 	{
@@ -119,197 +150,193 @@ void AStar::printGrid()
 	}
 }
 
-int AStar::distance(Pair pos)
+int AStar::costG(Node node, Pair pos)
 {
-	return abs(pos.first - x_f) + abs(pos.second - x_f);
-}
-
-bool AStar::isNotBlocked(int x, int y)
-{
-	if (grid[x][y] != 'o')
+	if ( 	abs(node.position.first  - pos.first) 	== 1 &&\
+			abs(node.position.second - pos.second) 	== 1)
 	{
-		return true;
+		return 14;
 	}
 	else
-	{
-		return false;
-	}		
+		return 10;
 }
 
-bool AStar::positionIsValid(Pair position)
+int AStar::costH(Pair pos)
 {
-	if (	position.first 	> x - 1 || position.first 	< 0\
-		|| 	position.second > y - 1 || position.second 	< 0)
-	{
-		return false;
-	}
-	else if(grid[position.first][position.second] == 'o')
-	{
-		return false;
-	}
-	else
-	{
-		return true;
-	}
+	return abs(pos.first - x_f) + abs(pos.second - y_f);
 }
 
-
-bool AStar::visitedChild(Node children, vector<Node> list, bool flag = false)
+bool AStar::isOnList(Node node, vector<Node> list)
 {
 	int i;
 
 	for (i = 0; i < list.size(); i++)
 	{
-		if (flag == false)
-		{
-			if (children.position == list[i].position)
-			{
-				return true;
-			}
-		}
-		else
-		{
-			if (children.position == list[i].position && children.g > list[i].g)
-			{
-				return true;
-			}
-		}
+		if (node.position.first 	== list[i].position.first &&
+			node.position.second	== list[i].position.second)
+			return true;
 	}
 	return false;
 }
 
-void AStar::aStarSearch()
+
+void AStar::tracePath(Node *node)
+{	
+
+	Node *p = node;
+	while(p != nullptr)
+	{
+		cout << "(" << p->position.first << "," << p->position.second << ")" << endl;
+		p 	=	p->parent;
+	}
+}
+void AStar::costF(Node new_node, Node curr_node)
 {
-	//Declare utility variables
-	int current_index;
-	int 	direction;
-	int 	 position;
-	int 		child;
-	int 		 cost;
+	new_node.h = costH(new_node.position);
+	new_node.g = costG(new_node, curr_node.position);
+	new_node.f = new_node.h + new_node.g;
+}
+
+void AStar::BeginPathSearch()
+{
 	int 			i;
+	int 		pos_x;
+	int 		pos_y;
+	int 		index;
+	int  	 curr_pos;
 
-	Pair node_position;
+	Node   start_node;
+	Node 	curr_node;
+	Node 	 end_node;
 
-	//Declare nodes
-	Node start_node;
-	Node final_node;
-	Node *new_node;
-	Node current_node;
+	Node 	*new_node;
 
+	vector<Node> 	open_list;
+	vector<Node>  closed_list;
 
-	//Declare to_visit and visited vectors
-
-	vector<Node>   to_visit_list;
-	vector<Node> 	visited_list;
-	vector<Node> 		children;
-
-	//Declare and initialize movemnt array
-	direction = 4;
-	int move[direction][2] = {	{-1, 0},  //go up
-								{0 ,-1},  //go left
-								{1 , 0},  //go down
-								{0 , 1} };//go right
-
+	vector<Pair> path;
 	//Initialize start and end nodes
-
-	start_node.parent.first 	= 	0;
-	start_node.parent.second 	= 	0;
 
 	start_node.position.first 	= x_0;
 	start_node.position.second 	= y_0;
 
-	start_node.g 				= 	0;
-	start_node.h 				= 	0;
-	start_node.f 				= 	0;
-
-	final_node.parent.first 	= 	0;
-	final_node.parent.second 	= 	0;
-
-	final_node.position.first 	= x_f;
-	final_node.position.second 	= y_f;
+	end_node.position.first 	= x_f;
+	end_node.position.second 	= y_f;
 
 	start_node.g 				= 	0;
 	start_node.h 				= 	0;
 	start_node.f 				= 	0;
 
-	to_visit_list.push_back(start_node);
+	end_node.g 					= 	0;
+	end_node.h 					= 	0;
+	end_node.f 					= 	0;
 
-	while (!to_visit_list.empty())
+	start_node.parent			= nullptr;
+	end_node.parent				= nullptr;
+
+	open_list.push_back(start_node);
+
+	while(!open_list.empty())
 	{
-		current_node 	= to_visit_list[0];
-		current_index 	= 				 0;
 
-		for (i = 0; i < to_visit_list.size(); i++)
-		{
-			if (to_visit_list[i].f < current_node.f)
-			{
-				current_node 	= to_visit_list[i];
-				current_index 	= 				 i;
+		index 		= 0;
+		curr_node 	= open_list[0];
+		path.push_back(open_list.back().position);
+		for (i = 0; i < open_list.size(); i++) 	
+		{	
+			if (open_list[i].f < curr_node.f)
+			{	
+				index 			= 	i;
+				curr_node	=	open_list[i];
 			}
 		}
 
-		to_visit_list.erase(to_visit_list.begin() + current_index);
-		visited_list.push_back(current_node);
+		open_list.erase(open_list.begin() + index);
+		closed_list.push_back(curr_node);
 
-		if (current_node.position == final_node.position)
+		for (curr_pos = 0; curr_pos < 8; curr_pos++)
 		{
-			cout << "Solution is found!" << endl;
-		}
+			pos_x = curr_node.position.first  + move[curr_pos][0];
+			pos_y = curr_node.position.second + move[curr_pos][1];
 
-		for (position = 0; position < direction; position++)
-		{
-			node_position.first 	= current_node.position.first 	+ move[position][0];
-			node_position.second 	= current_node.position.second 	+ move[position][1];
-
-			if(!positionIsValid(node_position))
-			{
+			if (pos_x < 0 || pos_x > x - 1 || pos_y < 0 || pos_y > y - 1)
 				continue;
+			else if (grid[pos_x][pos_y] == 'o')
+				continue;
+
+			new_node 					= new Node; //create a new node
+			new_node->position.first 	= pos_x; 	//assign position x
+			new_node->position.second 	= pos_y;	//assign position y
+
+			if (isOnList(*new_node, closed_list))
+				continue;
+			else if(!isOnList(*new_node, open_list))
+			{	
+				new_node->parent = &curr_node;
+				costF(*new_node, curr_node);
+				open_list.push_back(*new_node);
 			}
-
-			new_node 			= new Node;
-			new_node->parent 	= current_node.position;
-			new_node->position 	= node_position;
-
-			children.push_back(*new_node);
+			else
+			{
+				if (new_node->g < curr_node.g)
+				{
+					new_node->parent 	= &curr_node;
+					new_node->g 	 	= costG(*new_node, curr_node.position);
+					new_node->f 		= new_node->g + new_node->h;
+				}
+			}
 		}
 
-		for (child = 0; child < children.size(); child++)
+		if (isOnList(end_node, closed_list))
 		{
-			if (visitedChild(children[child], visited_list))
-			{
-				continue;
-			}
-
-			children[child].g = current_node.g + 1;
-			children[child].h = distance(children[child].position);
-			children[child].f = children[child].g + children[child].h;
-
-			if (visitedChild(children[child], to_visit_list, true))
-			{
-				continue;
-			}
-
-			to_visit_list.push_back(children[child]);
+			cout << "Solution is found !" << endl;
+			tracePath(&end_node);
+			return;
 		}
-
 	}
-
+	cout << "There is no path !" << endl;
+	return;
 }
 
 int main(int argc, char* argv[])
 {
-	if (argc < 5)
+
+	if (argc < 8)
 	{
         cerr << "Usage: " << argv[0] << " x_0, y_0, x_f, y_f, density, x, y" << endl;
         return 1;
     }
+    else if (	stoi(argv[1]) >= stoi(argv[6]) || stoi(argv[3]) >= stoi(argv[6]) ||
+    			stoi(argv[2]) >= stoi(argv[7]) || stoi(argv[4]) >= stoi(argv[7]))
+    {
+    	cerr << "Usage: \n(x_0 < x, x_f < x) \n(y_0 < y, y_f < y)" << endl;
+        return 1;
+    }
 
-	AStar path_finding(stoi(argv[1]), stoi(argv[2]), stoi(argv[3]), stoi(argv[4]), stoi(argv[5]));
+	AStar path_finding(	stoi(argv[1]), stoi(argv[2]),
+						stoi(argv[3]), stoi(argv[4]),
+						stoi(argv[5]), stoi(argv[6]),
+						stoi(argv[7]) );
 
 
 	path_finding.printGrid();
-	// path_finding.aStarSearch();
-
+	path_finding.BeginPathSearch();
+	// path_finding.printGrid();
 
 	return(0);
 }
+
+// // void doNothing(Node node)
+// // {
+// // 	node.parent = nullptr;
+// // }
+
+// // int main()
+// // {
+// // 	struct Node new_node;
+
+// // 	new_node.parent = nullptr;
+
+// // 	doNothing(new_node);
+// // 	return (0);
+// // }
