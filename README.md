@@ -31,6 +31,6 @@ Then run the executable file providing the necessary arguments :
 */a.out start_pos_x start_pos_y end_pos_x end_pos_y density grid_size_x grid_size_y*
 *./a.out 10 15 25 30 7 40 40*
 
-## Input --> Output
+## Input -> Output
 
-(https://github.com/averagemarcin/A-star-in-Cpp/blob/master/a_star.png)
+[Example input -> output](https://github.com/averagemarcin/A-star-in-Cpp/blob/master/a_star.png)
