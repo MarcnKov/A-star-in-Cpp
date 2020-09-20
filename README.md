@@ -33,4 +33,5 @@ Then run the executable file providing the necessary arguments :
 
 ## Input -> Output
 
-[Example input -> output](https://github.com/averagemarcin/A-star-in-Cpp/blob/master/a_star.png)
+<div style=""><img src ="https://github.com/averagemarcin/A-star-in-Cpp/blob/master/a_star.png" /></div>
+<div align="center">
