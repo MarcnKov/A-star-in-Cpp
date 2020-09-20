@@ -3,7 +3,7 @@ A basic pathfinding A* algorithm implementation on a 2D grid.
 
 ## Credits
 
-This algorithm was implemented following Patrick's Lesters article ("A* Pathfinding for Beginners")[https://github.com/averagemarcin/A-star-in-Cpp/blob/master/Astar.pdf]. 
+This algorithm was implemented following Patrick's Lesters article ["A* Pathfinding for Beginners"](https://github.com/averagemarcin/A-star-in-Cpp/blob/master/Astar.pdf). 
 Patrick provides a clear explanation on the workings of the algorithm. I highly recommend that you start 
 by reading his article if you want to understand and implement A*. 
 
@@ -33,4 +33,4 @@ Then run the executable file providing the necessary arguments :
 
 ## Input --> Output
 
-[https://github.com/averagemarcin/A-star-in-Cpp/blob/master/a_star.png]
+(https://github.com/averagemarcin/A-star-in-Cpp/blob/master/a_star.png)
