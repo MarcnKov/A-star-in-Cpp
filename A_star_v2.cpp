@@ -12,20 +12,18 @@ typedef pair<int, int> Pair;
 class Node
 {
 	public:
+	
 	/*Cost variables */
-
 	int h;
 	int g;
 	int f;
-
+	
 	/*(x,y) position of a node*/
-
 	Pair position;
-
+	
 	/*Pointer to the parent of a gieven node.*/
-
 	Node *parent;
-
+	
 	bool operator== (const Node &node);
 };
 
@@ -215,7 +213,6 @@ void AStar::costF(Node new_node, Node curr_node)
 
 void AStar::BeginPathSearch()
 {
-
 	int i;
 	int pos_x;
 	int pos_y;
@@ -254,7 +251,6 @@ void AStar::BeginPathSearch()
 	
 	while(!open_list.empty())
 	{
-
 		/* Look for the lowest F cost node on the
 		open_list. Name it current node(squre).*/
 		index 		= 0;
