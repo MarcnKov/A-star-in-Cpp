@@ -21,7 +21,7 @@ class Node
 	/*(x,y) position of a node*/
 	Pair position;
 	
-	/*Pointer to the parent of a gieven node.*/
+	/*Pointer to the parent of a given node.*/
 	Node *parent;
 	
 	bool operator== (const Node &node);
