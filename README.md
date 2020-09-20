@@ -9,12 +9,12 @@ by reading his article if you want to understand and implement A*.
 
 ## Description
 
-The goal of the algorithm is to find the shortest path in a graph between the 
-starting and final nodes. In order to do find the path, A* relies on a heuristic (Manhattan distance)  
+The goal of the algorithm is to find the shortest path in a graph between 
+starting and final nodes. In order to find the path, A* relies on a heuristic (I use Manhattan distance)  
 that allows it to estimate the shortest distance to the final node. 
 
 The A* algorithm finds the path in a 2D grid. 2D grid is composed of movable and not movable 
-areas. Walking path is represented by *.* and obstacle is represented 
+areas. Walking path is represented by *.* and an obstacle is represented 
 by *o*, start and ending nodes are represented by * and *x* accordingly.
 
 ## Future Improvements
