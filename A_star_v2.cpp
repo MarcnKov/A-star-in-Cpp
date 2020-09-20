@@ -11,30 +11,28 @@ typedef pair<int, int> Pair;
 
 class Node
 {
+	public:
+	/*Cost variables */
 
-public:
+	int h;
+	int g;
+	int f;
 
-/*Cost variables */
+	/*(x,y) position of a node*/
 
-int h;
-int g;
-int f;
+	Pair position;
 
-/*(x,y) position of a node*/
+	/*Pointer to the parent of a gieven node.*/
 
-Pair position;
+	Node *parent;
 
-/*Pointer to the parent of a gieven node.*/
-
-Node *parent;
-
-bool operator== (const Node &node);
+	bool operator== (const Node &node);
 };
 
 bool Node::operator== (const Node &node)
 {
-    return (node.position.first  == this->position.first &&
-	    node.position.second == this->position.second);
+	return (node.position.first  == this->position.first &&
+		node.position.second == this->position.second);
 }
 
 class AStar
